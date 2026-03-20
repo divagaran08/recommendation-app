@@ -41,9 +41,7 @@ public class AppController {
                         @RequestParam String password,
                         HttpSession session,
                         Model model) {
-
         var user = userService.login(username, password);
-
         if (user.isPresent()) {
             session.setAttribute("user", user.get());
             return "redirect:/home";
@@ -59,30 +57,31 @@ public class AppController {
                            @RequestParam String password,
                            @RequestParam String email,
                            Model model) {
-
         if (userRepository.findByUsername(username).isPresent()) {
             model.addAttribute("error", "Username already exists!");
             return "login";
         }
-
         User newUser = new User();
         newUser.setUsername(username);
         newUser.setPassword(password);
         newUser.setEmail(email);
         userRepository.save(newUser);
-
         model.addAttribute("success", "Account created! Please login.");
         return "login";
     }
 
     // ── Home Page ──
     @GetMapping("/home")
-    public String homePage(HttpSession session, Model model) {
-
+    public String homePage(@RequestParam(required = false) String category,
+                           HttpSession session,
+                           Model model) {
         User user = (User) session.getAttribute("user");
         if (user == null) return "redirect:/";
 
-        List<Product> products = recommendationService.getAllProducts();
+        List<Product> products = (category != null && !category.isEmpty())
+                ? recommendationService.getProductsByCategory(category)
+                : recommendationService.getAllProducts();
+
         List<Product> recommendations = recommendationService.getRecommendations(user.getId());
         List<Purchase> userPurchases = purchaseRepository.findByUserId(user.getId());
         List<Integer> purchasedIds = userPurchases.stream().map(Purchase::getProductId).toList();
@@ -91,6 +90,7 @@ public class AppController {
         model.addAttribute("products", products);
         model.addAttribute("recommendations", recommendations);
         model.addAttribute("purchasedIds", purchasedIds);
+        model.addAttribute("selectedCategory", category);
 
         return "home";
     }
@@ -100,7 +100,6 @@ public class AppController {
     public String search(@RequestParam String query,
                          HttpSession session,
                          Model model) {
-
         User user = (User) session.getAttribute("user");
         if (user == null) return "redirect:/";
 
@@ -122,11 +121,9 @@ public class AppController {
     @PostMapping("/buy/{productId}")
     public String buyProduct(@PathVariable int productId,
                              HttpSession session) {
-
         User user = (User) session.getAttribute("user");
         if (user == null) return "redirect:/";
 
-        // Check if already purchased
         List<Purchase> existing = purchaseRepository.findByUserId(user.getId());
         boolean alreadyBought = existing.stream()
                 .anyMatch(p -> p.getProductId() == productId);
@@ -140,6 +137,24 @@ public class AppController {
         }
 
         return "redirect:/home";
+    }
+
+    // ── Purchase History ──
+    @GetMapping("/history")
+    public String history(HttpSession session, Model model) {
+        User user = (User) session.getAttribute("user");
+        if (user == null) return "redirect:/";
+
+        List<Purchase> purchases = purchaseRepository.findByUserId(user.getId());
+        List<Product> boughtProducts = purchases.stream()
+                .map(p -> recommendationService.getProductById(p.getProductId()))
+                .filter(p -> p != null)
+                .toList();
+
+        model.addAttribute("user", user);
+        model.addAttribute("boughtProducts", boughtProducts);
+
+        return "history";
     }
 
     // ── Logout ──

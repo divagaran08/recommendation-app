@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Orders - ShopSmart</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f2f5;
+            color: #333;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 14px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.2);
+        }
+
+        .logo { color: white; font-size: 1.6rem; font-weight: 800; }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-back {
+            padding: 8px 18px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.4);
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        .btn-back:hover { background: rgba(255,255,255,0.3); }
+
+        .btn-logout {
+            padding: 8px 18px;
+            background: rgba(255,255,255,0.15);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
+
+        .page-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .page-subtitle {
+            color: #888;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+        }
+
+        .empty-state .icon { font-size: 4rem; margin-bottom: 16px; }
+        .empty-state h3 { font-size: 1.3rem; color: #555; margin-bottom: 8px; }
+        .empty-state p { color: #aaa; margin-bottom: 24px; }
+
+        .btn-shop {
+            padding: 12px 28px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .order-card {
+            background: white;
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: transform 0.2s;
+        }
+
+        .order-card:hover { transform: translateX(4px); }
+
+        .order-img {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            flex-shrink: 0;
+        }
+
+        .order-img.Electronics { background: linear-gradient(135deg, #e3f2fd, #bbdefb); }
+        .order-img.Footwear    { background: linear-gradient(135deg, #f3e5f5, #e1bee7); }
+        .order-img.Clothing    { background: linear-gradient(135deg, #fce4ec, #f8bbd0); }
+        .order-img.Sports      { background: linear-gradient(135deg, #e8f5e9, #c8e6c9); }
+        .order-img.Home        { background: linear-gradient(135deg, #fff8e1, #ffecb3); }
+
+        .order-info { flex: 1; }
+
+        .order-name {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 4px;
+        }
+
+        .order-category {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .cat-color-Electronics { color: #1565c0; }
+        .cat-color-Footwear    { color: #6a1b9a; }
+        .cat-color-Clothing    { color: #ad1457; }
+        .cat-color-Sports      { color: #2e7d32; }
+        .cat-color-Home        { color: #e65100; }
+
+        .order-rating { font-size: 0.85rem; color: #f39c12; }
+
+        .order-price {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #333;
+        }
+
+        .order-badge {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .summary-bar {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 14px;
+            padding: 20px 28px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+
+        .summary-bar .stat { text-align: center; }
+        .summary-bar .stat-num { font-size: 1.8rem; font-weight: 800; }
+        .summary-bar .stat-label { font-size: 0.85rem; opacity: 0.85; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">🛍️ ShopSmart</div>
+    <div class="nav-right">
+        <span style="color:white">👋 <strong th:text="${user.username}"></strong></span>
+        <a href="/home" class="btn-back">🏠 Back to Shop</a>
+        <a href="/logout" class="btn-logout">Logout</a>
+    </div>
+</nav>
+
+<div class="container">
+
+    <div class="page-title">📦 My Orders</div>
+    <div class="page-subtitle">All products you have purchased</div>
+
+    <!-- EMPTY STATE -->
+    <div th:if="${boughtProducts == null or boughtProducts.isEmpty()}" class="empty-state">
+        <div class="icon">🛒</div>
+        <h3>No orders yet!</h3>
+        <p>You haven't bought anything yet. Go shop something!</p>
+        <a href="/home" class="btn-shop">Start Shopping</a>
+    </div>
+
+    <!-- SUMMARY BAR -->
+    <div th:if="${boughtProducts != null and !boughtProducts.isEmpty()}" class="summary-bar">
+        <div class="stat">
+            <div class="stat-num" th:text="${boughtProducts.size()}"></div>
+            <div class="stat-label">Items Purchased</div>
+        </div>
+        <div class="stat">
+            <div class="stat-num">✅</div>
+            <div class="stat-label">All Delivered</div>
+        </div>
+        <div class="stat">
+            <div class="stat-num">🔥</div>
+            <div class="stat-label">AI Recommendations ON</div>
+        </div>
+    </div>
+
+    <!-- ORDER LIST -->
+    <div th:if="${boughtProducts != null and !boughtProducts.isEmpty()}">
+        <div class="order-card" th:each="product : ${boughtProducts}">
+            <div class="order-img" th:classappend="${product.category}">
+                <span th:text="${product.category == 'Electronics'} ? '📱' :
+                               (${product.category == 'Footwear'} ? '👟' :
+                               (${product.category == 'Clothing'} ? '👕' :
+                               (${product.category == 'Sports'} ? '⚽' : '🏡')))"></span>
+            </div>
+            <div class="order-info">
+                <div class="order-name" th:text="${product.name}"></div>
+                <div class="order-category" th:classappend="'cat-color-' + ${product.category}" th:text="${product.category}"></div>
+                <div class="order-rating" th:text="'⭐ ' + ${product.rating}"></div>
+            </div>
+            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+                <div class="order-price" th:text="'₹' + ${product.price}"></div>
+                <div class="order-badge">✅ Purchased</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
+```
+
+Now restart the app:
+```
+Ctrl+C
+mvn spring-boot:run

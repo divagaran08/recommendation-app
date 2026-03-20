@@ -108,7 +108,6 @@ public class RecommendationService {
             e.printStackTrace();
         }
 
-        // SORT by score, return top 10 products
         List<Map.Entry<Integer, Double>> sorted = new ArrayList<>(scoreMap.entrySet());
         sorted.sort((a, b) -> Double.compare(b.getValue(), a.getValue()));
 
@@ -127,5 +126,13 @@ public class RecommendationService {
 
     public List<Product> getAllProducts() {
         return productRepository.findAll();
+    }
+
+    public List<Product> getProductsByCategory(String category) {
+        return productRepository.findByCategory(category);
+    }
+
+    public Product getProductById(int id) {
+        return productRepository.findById(id).orElse(null);
     }
 }
