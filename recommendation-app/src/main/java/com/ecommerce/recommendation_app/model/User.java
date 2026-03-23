@@ -1,6 +1,7 @@
 package com.ecommerce.recommendation_app.model;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
@@ -14,6 +15,12 @@ public class User {
     private String password;
     private String email;
 
+    @Column(name = "reset_token")
+    private String resetToken;
+
+    @Column(name = "token_expiry")
+    private LocalDateTime tokenExpiry;
+
     // Getters and Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
@@ -26,4 +33,10 @@ public class User {
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+
+    public String getResetToken() { return resetToken; }
+    public void setResetToken(String resetToken) { this.resetToken = resetToken; }
+
+    public LocalDateTime getTokenExpiry() { return tokenExpiry; }
+    public void setTokenExpiry(LocalDateTime tokenExpiry) { this.tokenExpiry = tokenExpiry; }
 }

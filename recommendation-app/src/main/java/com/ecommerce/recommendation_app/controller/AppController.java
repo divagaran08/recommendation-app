@@ -5,6 +5,7 @@ import com.ecommerce.recommendation_app.model.Purchase;
 import com.ecommerce.recommendation_app.model.User;
 import com.ecommerce.recommendation_app.repository.PurchaseRepository;
 import com.ecommerce.recommendation_app.repository.UserRepository;
+import com.ecommerce.recommendation_app.service.EmailService;
 import com.ecommerce.recommendation_app.service.RecommendationService;
 import com.ecommerce.recommendation_app.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,9 @@ public class AppController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private EmailService emailService;
 
     // ── Login Page ──
     @GetMapping("/")
@@ -67,6 +71,116 @@ public class AppController {
         newUser.setEmail(email);
         userRepository.save(newUser);
         model.addAttribute("success", "Account created! Please login.");
+        return "login";
+    }
+
+    // ── Forgot Password ──
+    @GetMapping("/forgot-password")
+    public String forgotPasswordPage() {
+        return "forgot-password";
+    }
+
+    @PostMapping("/forgot-password")
+    public String forgotPassword(@RequestParam String email,
+                                 HttpSession session,
+                                 Model model) {
+        var userOpt = userRepository.findByEmail(email);
+
+        if (userOpt.isEmpty()) {
+            model.addAttribute("error", "No account found with that email!");
+            return "forgot-password";
+        }
+
+        // Generate 4 digit PIN
+        String pin = String.valueOf((int)(Math.random() * 9000) + 1000);
+
+        User user = userOpt.get();
+        user.setResetToken(pin);
+        user.setTokenExpiry(LocalDateTime.now().plusMinutes(10));
+        userRepository.save(user);
+
+        try {
+            emailService.sendPinEmail(email, pin);
+            session.setAttribute("resetEmail", email);
+            model.addAttribute("success", "A 4-digit PIN has been sent to your email!");
+            model.addAttribute("showPin", true);
+        } catch (Exception e) {
+            model.addAttribute("error", "Failed to send email. Please try again.");
+        }
+
+        return "forgot-password";
+    }
+
+    // ── Verify PIN ──
+    @PostMapping("/verify-pin")
+    public String verifyPin(@RequestParam String pin,
+                            HttpSession session,
+                            Model model) {
+        String email = (String) session.getAttribute("resetEmail");
+
+        if (email == null) {
+            model.addAttribute("error", "Session expired! Please try again.");
+            return "forgot-password";
+        }
+
+        var userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            model.addAttribute("error", "Something went wrong. Please try again.");
+            return "forgot-password";
+        }
+
+        User user = userOpt.get();
+
+        if (!pin.equals(user.getResetToken())) {
+            model.addAttribute("error", "Invalid PIN! Please try again.");
+            model.addAttribute("showPin", true);
+            return "forgot-password";
+        }
+
+        if (user.getTokenExpiry().isBefore(LocalDateTime.now())) {
+            model.addAttribute("error", "PIN has expired! Please request a new one.");
+            return "forgot-password";
+        }
+
+        session.setAttribute("resetVerified", true);
+        return "reset-password";
+    }
+
+    // ── Reset Password ──
+    @GetMapping("/reset-password")
+    public String resetPasswordPage(HttpSession session) {
+        if (session.getAttribute("resetVerified") == null) {
+            return "redirect:/forgot-password";
+        }
+        return "reset-password";
+    }
+
+    @PostMapping("/reset-password")
+    public String resetPassword(@RequestParam String password,
+                                HttpSession session,
+                                Model model) {
+        if (session.getAttribute("resetVerified") == null) {
+            return "redirect:/forgot-password";
+        }
+
+        String email = (String) session.getAttribute("resetEmail");
+        var userOpt = userRepository.findByEmail(email);
+
+        if (userOpt.isEmpty()) {
+            model.addAttribute("error", "Something went wrong!");
+            return "forgot-password";
+        }
+
+        User user = userOpt.get();
+        user.setPassword(password);
+        user.setResetToken(null);
+        user.setTokenExpiry(null);
+        userRepository.save(user);
+
+        session.removeAttribute("resetEmail");
+        session.removeAttribute("resetVerified");
+
+        model.addAttribute("success", "Password reset successful! Please login.");
         return "login";
     }
 
