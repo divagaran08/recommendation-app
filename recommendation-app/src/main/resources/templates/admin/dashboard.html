@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard - ShopSmart</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f2f5;
+            display: flex;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 240px;
+            min-height: 100vh;
+            background: linear-gradient(180deg, #2d3748, #1a202c);
+            padding: 24px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        .sidebar-logo {
+            text-align: center;
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 800;
+            padding: 0 20px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 16px;
+        }
+
+        .sidebar-logo span { color: #667eea; }
+
+        .nav-item {
+            display: block;
+            padding: 12px 24px;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.08);
+            color: white;
+            border-left-color: #667eea;
+        }
+
+        .nav-item.active {
+            background: rgba(102,126,234,0.15);
+            color: white;
+            border-left-color: #667eea;
+        }
+
+        .nav-item .icon { margin-right: 10px; }
+
+        .nav-divider {
+            border: none;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            margin: 12px 0;
+        }
+
+        /* MAIN CONTENT */
+        .main {
+            margin-left: 240px;
+            flex: 1;
+            padding: 30px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .topbar h1 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #333;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-back {
+            padding: 8px 18px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .btn-logout {
+            padding: 8px 18px;
+            background: #e53e3e;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* STATS CARDS */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+
+        .stat-icon.blue { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .stat-icon.green { background: linear-gradient(135deg, #48bb78, #38a169); }
+        .stat-icon.orange { background: linear-gradient(135deg, #ed8936, #dd6b20); }
+
+        .stat-info .stat-num {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #333;
+        }
+
+        .stat-info .stat-label {
+            font-size: 0.9rem;
+            color: #888;
+            font-weight: 500;
+        }
+
+        /* TABLE */
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 10px 14px;
+            background: #f7f7f7;
+            color: #555;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.9rem;
+            color: #444;
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #fafafa; }
+
+        .badge-admin {
+            background: #e9d8fd;
+            color: #6b46c1;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .badge-user {
+            background: #e2e8f0;
+            color: #4a5568;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="sidebar-logo">🛍️ Shop<span>Smart</span><br><small style="font-size:0.75rem; opacity:0.6">Admin Panel</small></div>
+        <a href="/admin" class="nav-item active"><span class="icon">📊</span> Dashboard</a>
+        <a href="/admin/products" class="nav-item"><span class="icon">📦</span> Products</a>
+        <a href="/admin/users" class="nav-item"><span class="icon">👥</span> Users</a>
+        <a href="/admin/purchases" class="nav-item"><span class="icon">🛒</span> Purchases</a>
+        <hr class="nav-divider">
+        <a href="/home" class="nav-item"><span class="icon">🏠</span> Back to Shop</a>
+        <a href="/logout" class="nav-item" style="color: #fc8181;"><span class="icon">🚪</span> Logout</a>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+        <div class="topbar">
+            <h1>📊 Dashboard</h1>
+            <div class="topbar-right">
+                <a href="/home" class="btn-back">🏠 Shop</a>
+                <a href="/logout" class="btn-logout">Logout</a>
+            </div>
+        </div>
+
+        <!-- STATS -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon blue">👥</div>
+                <div class="stat-info">
+                    <div class="stat-num" th:text="${totalUsers}"></div>
+                    <div class="stat-label">Total Users</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green">📦</div>
+                <div class="stat-info">
+                    <div class="stat-num" th:text="${totalProducts}"></div>
+                    <div class="stat-label">Total Products</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon orange">🛒</div>
+                <div class="stat-info">
+                    <div class="stat-num" th:text="${totalPurchases}"></div>
+                    <div class="stat-label">Total Purchases</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RECENT USERS -->
+        <div class="card">
+            <div class="card-title">👥 Recent Users</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="user : ${recentUsers}">
+                        <td th:text="${user.id}"></td>
+                        <td th:text="${user.username}"></td>
+                        <td th:text="${user.email}"></td>
+                        <td>
+                            <span th:if="${user.admin}" class="badge-admin">Admin</span>
+                            <span th:if="${!user.admin}" class="badge-user">User</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>

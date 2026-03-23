@@ -15,6 +15,9 @@ public class User {
     private String password;
     private String email;
 
+    @Column(name = "is_admin")
+    private boolean isAdmin;
+
     @Column(name = "reset_token")
     private String resetToken;
 
@@ -33,6 +36,9 @@ public class User {
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+
+    public boolean isAdmin() { return isAdmin; }
+    public void setAdmin(boolean isAdmin) { this.isAdmin = isAdmin; }
 
     public String getResetToken() { return resetToken; }
     public void setResetToken(String resetToken) { this.resetToken = resetToken; }

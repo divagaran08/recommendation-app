@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Purchases - Admin</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f2f5;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 240px;
+            min-height: 100vh;
+            background: linear-gradient(180deg, #2d3748, #1a202c);
+            padding: 24px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        .sidebar-logo {
+            text-align: center;
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 800;
+            padding: 0 20px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 16px;
+        }
+
+        .sidebar-logo span { color: #667eea; }
+
+        .nav-item {
+            display: block;
+            padding: 12px 24px;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.08);
+            color: white;
+            border-left-color: #667eea;
+        }
+
+        .nav-item.active {
+            background: rgba(102,126,234,0.15);
+            color: white;
+            border-left-color: #667eea;
+        }
+
+        .nav-item .icon { margin-right: 10px; }
+        .nav-divider { border: none; border-top: 1px solid rgba(255,255,255,0.08); margin: 12px 0; }
+
+        .main { margin-left: 240px; flex: 1; padding: 30px; }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .topbar h1 { font-size: 1.6rem; font-weight: 800; color: #333; }
+
+        .table-card {
+            background: white;
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+        }
+
+        .table-topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .card-title { font-size: 1.1rem; font-weight: 700; color: #333; }
+        .purchase-count { font-size: 0.9rem; color: #888; }
+
+        table { width: 100%; border-collapse: collapse; }
+
+        th {
+            text-align: left;
+            padding: 10px 14px;
+            background: #f7f7f7;
+            color: #555;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.9rem;
+            color: #444;
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #fafafa; }
+
+        .badge {
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .badge-Electronics { background: #ebf4ff; color: #1565c0; }
+        .badge-Footwear    { background: #f3e5f5; color: #6a1b9a; }
+        .badge-Clothing    { background: #fce4ec; color: #ad1457; }
+        .badge-Sports      { background: #e8f5e9; color: #2e7d32; }
+        .badge-Home        { background: #fff8e1; color: #e65100; }
+
+        .status-badge {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-logo">🛍️ Shop<span>Smart</span><br><small style="font-size:0.75rem; opacity:0.6">Admin Panel</small></div>
+        <a href="/admin" class="nav-item"><span class="icon">📊</span> Dashboard</a>
+        <a href="/admin/products" class="nav-item"><span class="icon">📦</span> Products</a>
+        <a href="/admin/users" class="nav-item"><span class="icon">👥</span> Users</a>
+        <a href="/admin/purchases" class="nav-item active"><span class="icon">🛒</span> Purchases</a>
+        <hr class="nav-divider">
+        <a href="/home" class="nav-item"><span class="icon">🏠</span> Back to Shop</a>
+        <a href="/logout" class="nav-item" style="color: #fc8181;"><span class="icon">🚪</span> Logout</a>
+    </div>
+
+    <div class="main">
+        <div class="topbar">
+            <h1>🛒 Purchases</h1>
+        </div>
+
+        <div class="table-card">
+            <div class="table-topbar">
+                <div class="card-title">🛒 All Purchases</div>
+                <div class="purchase-count" th:text="${purchases.size()} + ' purchases'"></div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User ID</th>
+                        <th>Product ID</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="purchase : ${purchases}">
+                        <td th:text="${purchase.id}"></td>
+                        <td th:text="${purchase.userId}"></td>
+                        <td th:text="${purchase.productId}"></td>
+                        <td th:text="${purchase.purchaseDate}"></td>
+                        <td><span class="status-badge">✅ Completed</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>

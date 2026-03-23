@@ -191,7 +191,6 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.13);
         }
 
-        /* CARD IMAGE AREA - color by category */
         .card-img {
             width: 100%;
             height: 130px;
@@ -312,6 +311,7 @@
     <div class="nav-right">
         <span>👋 <strong th:text="${user.username}"></strong></span>
         <a href="/history" class="btn-history">📦 My Orders</a>
+        <a th:if="${user.admin}" href="/admin" class="btn-history" style="background: rgba(255,100,50,0.3);">⚙️ Admin</a>
         <a href="/logout" class="btn-logout">Logout</a>
     </div>
 </nav>

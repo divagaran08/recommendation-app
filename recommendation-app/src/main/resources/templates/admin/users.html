@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Users - Admin</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f2f5;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 240px;
+            min-height: 100vh;
+            background: linear-gradient(180deg, #2d3748, #1a202c);
+            padding: 24px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        .sidebar-logo {
+            text-align: center;
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 800;
+            padding: 0 20px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 16px;
+        }
+
+        .sidebar-logo span { color: #667eea; }
+
+        .nav-item {
+            display: block;
+            padding: 12px 24px;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.08);
+            color: white;
+            border-left-color: #667eea;
+        }
+
+        .nav-item.active {
+            background: rgba(102,126,234,0.15);
+            color: white;
+            border-left-color: #667eea;
+        }
+
+        .nav-item .icon { margin-right: 10px; }
+        .nav-divider { border: none; border-top: 1px solid rgba(255,255,255,0.08); margin: 12px 0; }
+
+        .main { margin-left: 240px; flex: 1; padding: 30px; }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .topbar h1 { font-size: 1.6rem; font-weight: 800; color: #333; }
+
+        .table-card {
+            background: white;
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+        }
+
+        .table-topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .card-title { font-size: 1.1rem; font-weight: 700; color: #333; }
+        .user-count { font-size: 0.9rem; color: #888; }
+
+        table { width: 100%; border-collapse: collapse; }
+
+        th {
+            text-align: left;
+            padding: 10px 14px;
+            background: #f7f7f7;
+            color: #555;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.9rem;
+            color: #444;
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #fafafa; }
+
+        .badge-admin {
+            background: #e9d8fd;
+            color: #6b46c1;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .badge-user {
+            background: #e2e8f0;
+            color: #4a5568;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .btn-delete {
+            padding: 6px 14px;
+            background: #fff5f5;
+            color: #e53e3e;
+            border: 1px solid #fed7d7;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .btn-delete:hover { background: #e53e3e; color: white; }
+
+        .avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-logo">🛍️ Shop<span>Smart</span><br><small style="font-size:0.75rem; opacity:0.6">Admin Panel</small></div>
+        <a href="/admin" class="nav-item"><span class="icon">📊</span> Dashboard</a>
+        <a href="/admin/products" class="nav-item"><span class="icon">📦</span> Products</a>
+        <a href="/admin/users" class="nav-item active"><span class="icon">👥</span> Users</a>
+        <a href="/admin/purchases" class="nav-item"><span class="icon">🛒</span> Purchases</a>
+        <hr class="nav-divider">
+        <a href="/home" class="nav-item"><span class="icon">🏠</span> Back to Shop</a>
+        <a href="/logout" class="nav-item" style="color: #fc8181;"><span class="icon">🚪</span> Logout</a>
+    </div>
+
+    <div class="main">
+        <div class="topbar">
+            <h1>👥 Users</h1>
+        </div>
+
+        <div class="table-card">
+            <div class="table-topbar">
+                <div class="card-title">👥 All Users</div>
+                <div class="user-count" th:text="${users.size()} + ' users'"></div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="user : ${users}">
+                        <td th:text="${user.id}"></td>
+                        <td>
+                            <span class="avatar" th:text="${#strings.toUpperCase(#strings.substring(user.username, 0, 1))}"></span>
+                            <span th:text="${user.username}"></span>
+                        </td>
+                        <td th:text="${user.email}"></td>
+                        <td>
+                            <span th:if="${user.admin}" class="badge-admin">👑 Admin</span>
+                            <span th:if="${!user.admin}" class="badge-user">👤 User</span>
+                        </td>
+                        <td>
+                            <form th:if="${!user.admin}"
+                                  th:action="'/admin/users/delete/' + ${user.id}" method="post"
+                                  onsubmit="return confirm('Delete this user?')">
+                                <button type="submit" class="btn-delete">🗑️ Delete</button>
+                            </form>
+                            <span th:if="${user.admin}" style="color:#888; font-size:0.85rem;">Protected</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>
