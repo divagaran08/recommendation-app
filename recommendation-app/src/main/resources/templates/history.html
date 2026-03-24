@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Orders - ShopSmart</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -14,70 +15,97 @@
 
         .navbar {
             background: linear-gradient(135deg, #667eea, #764ba2);
-            padding: 14px 30px;
+            padding: 14px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             box-shadow: 0 2px 15px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
-        .logo { color: white; font-size: 1.6rem; font-weight: 800; }
+        .logo { color: white; font-size: 1.4rem; font-weight: 800; }
 
         .nav-right {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .btn-back {
-            padding: 8px 18px;
+            padding: 8px 16px;
             background: rgba(255,255,255,0.2);
             color: white;
             border: 1px solid rgba(255,255,255,0.4);
             border-radius: 20px;
             text-decoration: none;
-            font-size: 0.9rem;
-            transition: background 0.2s;
+            font-size: 0.85rem;
+            white-space: nowrap;
         }
 
-        .btn-back:hover { background: rgba(255,255,255,0.3); }
-
         .btn-logout {
-            padding: 8px 18px;
+            padding: 8px 16px;
             background: rgba(255,255,255,0.15);
             color: white;
             border: 1px solid rgba(255,255,255,0.3);
             border-radius: 20px;
             text-decoration: none;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            white-space: nowrap;
         }
 
-        .container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
+        .username {
+            color: white;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .container { max-width: 900px; margin: 0 auto; padding: 24px 16px; }
 
         .page-title {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             font-weight: 800;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             color: #333;
         }
 
         .page-subtitle {
             color: #888;
-            margin-bottom: 30px;
-            font-size: 0.95rem;
+            margin-bottom: 24px;
+            font-size: 0.9rem;
         }
 
+        /* SUMMARY BAR */
+        .summary-bar {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 14px;
+            padding: 20px;
+            color: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .stat { text-align: center; }
+        .stat-num { font-size: 1.8rem; font-weight: 800; }
+        .stat-label { font-size: 0.8rem; opacity: 0.85; }
+
+        /* EMPTY STATE */
         .empty-state {
             text-align: center;
-            padding: 80px 20px;
+            padding: 60px 20px;
             background: white;
             border-radius: 16px;
             box-shadow: 0 2px 12px rgba(0,0,0,0.07);
         }
 
-        .empty-state .icon { font-size: 4rem; margin-bottom: 16px; }
-        .empty-state h3 { font-size: 1.3rem; color: #555; margin-bottom: 8px; }
-        .empty-state p { color: #aaa; margin-bottom: 24px; }
+        .empty-state .icon { font-size: 3.5rem; margin-bottom: 14px; }
+        .empty-state h3 { font-size: 1.2rem; color: #555; margin-bottom: 8px; }
+        .empty-state p { color: #aaa; margin-bottom: 20px; font-size: 0.9rem; }
 
         .btn-shop {
             padding: 12px 28px;
@@ -92,28 +120,29 @@
             display: inline-block;
         }
 
+        /* ORDER CARDS */
         .order-card {
             background: white;
             border-radius: 14px;
-            padding: 20px;
-            margin-bottom: 16px;
+            padding: 16px;
+            margin-bottom: 14px;
             box-shadow: 0 2px 12px rgba(0,0,0,0.07);
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 16px;
             transition: transform 0.2s;
         }
 
         .order-card:hover { transform: translateX(4px); }
 
         .order-img {
-            width: 80px;
-            height: 80px;
+            width: 70px;
+            height: 70px;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.5rem;
+            font-size: 2rem;
             flex-shrink: 0;
         }
 
@@ -123,21 +152,24 @@
         .order-img.Sports      { background: linear-gradient(135deg, #e8f5e9, #c8e6c9); }
         .order-img.Home        { background: linear-gradient(135deg, #fff8e1, #ffecb3); }
 
-        .order-info { flex: 1; }
+        .order-info { flex: 1; min-width: 0; }
 
         .order-name {
-            font-size: 1.05rem;
+            font-size: 0.95rem;
             font-weight: 700;
             color: #222;
             margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .order-category {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         .cat-color-Electronics { color: #1565c0; }
@@ -146,10 +178,18 @@
         .cat-color-Sports      { color: #2e7d32; }
         .cat-color-Home        { color: #e65100; }
 
-        .order-rating { font-size: 0.85rem; color: #f39c12; }
+        .order-rating { font-size: 0.82rem; color: #f39c12; }
+
+        .order-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+            flex-shrink: 0;
+        }
 
         .order-price {
-            font-size: 1.2rem;
+            font-size: 1.05rem;
             font-weight: 800;
             color: #333;
         }
@@ -157,26 +197,44 @@
         .order-badge {
             background: #e8f5e9;
             color: #2e7d32;
-            padding: 6px 14px;
+            padding: 4px 12px;
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 700;
+            white-space: nowrap;
         }
 
-        .summary-bar {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-radius: 14px;
-            padding: 20px 28px;
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 28px;
+        /* MOBILE */
+        @media (max-width: 768px) {
+            .username { display: none; }
+
+            .page-title { font-size: 1.3rem; }
+
+            .summary-bar {
+                padding: 16px;
+                gap: 10px;
+            }
+
+            .stat-num { font-size: 1.4rem; }
+
+            .order-card {
+                padding: 12px;
+                gap: 12px;
+            }
+
+            .order-img {
+                width: 56px;
+                height: 56px;
+                font-size: 1.6rem;
+            }
+
+            .order-name { font-size: 0.88rem; }
+            .order-price { font-size: 0.95rem; }
         }
 
-        .summary-bar .stat { text-align: center; }
-        .summary-bar .stat-num { font-size: 1.8rem; font-weight: 800; }
-        .summary-bar .stat-label { font-size: 0.85rem; opacity: 0.85; }
+        @media (max-width: 400px) {
+            .order-badge { display: none; }
+        }
     </style>
 </head>
 <body>
@@ -184,8 +242,8 @@
 <nav class="navbar">
     <div class="logo">🛍️ ShopSmart</div>
     <div class="nav-right">
-        <span style="color:white">👋 <strong th:text="${user.username}"></strong></span>
-        <a href="/home" class="btn-back">🏠 Back to Shop</a>
+        <span class="username">👋 <strong th:text="${user.username}"></strong></span>
+        <a href="/home" class="btn-back">🏠 Shop</a>
         <a href="/logout" class="btn-logout">Logout</a>
     </div>
 </nav>
@@ -230,10 +288,12 @@
             </div>
             <div class="order-info">
                 <div class="order-name" th:text="${product.name}"></div>
-                <div class="order-category" th:classappend="'cat-color-' + ${product.category}" th:text="${product.category}"></div>
+                <div class="order-category"
+                     th:classappend="'cat-color-' + ${product.category}"
+                     th:text="${product.category}"></div>
                 <div class="order-rating" th:text="'⭐ ' + ${product.rating}"></div>
             </div>
-            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+            <div class="order-right">
                 <div class="order-price" th:text="'₹' + ${product.price}"></div>
                 <div class="order-badge">✅ Purchased</div>
             </div>
@@ -243,9 +303,3 @@
 </div>
 </body>
 </html>
-```
-
-Now restart the app:
-```
-Ctrl+C
-mvn spring-boot:run
